@@ -55,9 +55,7 @@ jobs:
       - name: Start Postgres ${{ matrix.pg }}
         id: pg
         uses: ./
-        with:
-          version: ${{ matrix.pg }}
-          packages: libkrb5-dev libipc-run-perl
+        with: { version: "${{ matrix.pg }}" }
       - name: Build
         working-directory: test/pgxs
         run: make -j $(nproc)
@@ -77,3 +75,44 @@ jobs:
         with:
           name: regression-diffs-${{ matrix.os }}-${{ matrix.arch }}-pg${{ matrix.pg }}
           path: test/pgxs/regression.diffs
+
+  inputs:
+    strategy:
+      fail-fast: false
+      matrix:
+        pg: [18]
+        os:
+          - { img: 🍎, name: macOS  }
+          - { img: 🐧, name: Ubuntu }
+        opt:
+          - { port: 6543, encoding: SQL_ASCII, locale: en_US.UTF-8 }
+          - { port: 7743, encoding: EUC_KR,    locale: C,  }
+    name: ${{ matrix.os.img }} ${{ matrix.os.name }} ${{ matrix.opt.encoding }}
+    runs-on: ${{ matrix.os.name }}-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+      - name: Start Postgres ${{ matrix.pg }}
+        id: pg
+        uses: ./
+        with:
+          version: ${{ matrix.pg }}
+          packages: hugo
+          port: ${{ matrix.opt.port }}
+          encoding: ${{ matrix.opt.encoding }}
+          locale: ${{ matrix.opt.locale }}
+      - name: Check stuff
+        run: |
+          set -e
+          psql -c "SELECT regexp_replace(version(), ',.+', '') AS version,
+                          (SELECT setting FROM pg_catalog.pg_settings WHERE name = 'port') AS port,
+                          current_setting('server_encoding') AS encoding,
+                          (SELECT datcollate FROM pg_database WHERE datname = current_database()) AS locale"
+          # Fail if values wrong.
+          set -x
+          psql -c "SELECT version()" | grep 'PostgreSQL ${{ matrix.pg }}'
+          psql -c "SELECT setting FROM pg_catalog.pg_settings WHERE name = 'port'" | grep '${{ matrix.opt.port }}'
+          psql -c "SELECT current_setting('server_encoding')" | grep '${{ matrix.opt.encoding }}'
+          psql -c "SELECT datcollate FROM pg_database WHERE datname = current_database()" | grep '${{ matrix.opt.locale }}'
+          pgxn --version # Always installed
+          hugo version # Added by packages

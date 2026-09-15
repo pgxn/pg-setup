@@ -20,6 +20,12 @@ inputs:
   start:
     description: Whether or not to start Postgres after installing
     default: "yes"
+  encoding:
+    description: The encoding to use for databases in the cluster
+    required: false
+  locale:
+    description: The locale to use for databases in the cluster
+    required: false
 
 runs:
   using: composite
@@ -27,6 +33,7 @@ runs:
     - name: Install ${{ inputs.version }}
       shell: bash
       run: |
+        set -e
         case "$RUNNER_OS" in
         Linux)
           sudo apt-get update
@@ -34,7 +41,7 @@ runs:
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -v ${{ inputs.version }} -i -p
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
           if [ "${{ inputs.start }}" == 'yes' ]; then
-            sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} -- -A trust
+            sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }} -- -A trust
           fi
           printf '/usr/lib/postgresql/${{ inputs.version }}/bin\n' >> "$GITHUB_PATH"
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=/usr/lib/postgresql/${{ inputs.version }}/bin/pg_config' >> "$GITHUB_ENV"
@@ -46,12 +53,12 @@ runs:
           export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
           export HOMEBREW_NO_INSTALL_UPGRADE=1
-          brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient
+          brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient ${{ inputs.packages }}
           brew unlink --quiet "postgresql@${{ inputs.version }}"
           brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
           export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'yes' ]; then
-            initdb -U postgres
+            initdb -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
             pg_ctl start
           fi
