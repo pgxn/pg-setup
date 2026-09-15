@@ -58,7 +58,8 @@ jobs:
       - name: Start Postgres ${{ matrix.pg }}
         id: pg
         uses: ./
-        with: { version: "${{ matrix.pg }}" }
+        with:
+          version: ${{ matrix.pg }}
       - name: Build
         working-directory: test/pgxs
         run: make -j $(nproc)
@@ -119,3 +120,22 @@ jobs:
           psql -c "SELECT datcollate FROM pg_database WHERE datname = current_database()" | grep '${{ matrix.opt.locale }}'
           pgxn --version # Always installed
           hugo version # Added by packages
+
+  no-start:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - { img: 🍎, name: macOS  }
+          - { img: 🐧, name: Ubuntu }
+    name: ${{ matrix.os.img }} ${{ matrix.os.name }} no-start
+    runs-on: ${{ matrix.os.name }}-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+      - name: Start Postgres
+        id: pg
+        uses: ./
+        with: { version: 18, start: false }
+      - name: Check Not Running
+        run: if psql -c 'SELECT version()'; then printf 'Server running but should not\n'; exit 1; fi

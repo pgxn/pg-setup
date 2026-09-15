@@ -9,17 +9,17 @@ inputs:
   version:
     description: Major Postgres version to install
     required: true
-    default: "19"
+    default: 19
   port:
     description: The Postgres server port for Postgres
-    default: "55432"
+    default: 55432
     required: false
   packages:
     description: List of additional packages to install
     required: false
   start:
     description: Whether or not to start Postgres after installing
-    default: "yes"
+    default: true
   encoding:
     description: The encoding to use for databases in the cluster
     required: false
@@ -40,7 +40,7 @@ runs:
           sudo apt-get install -y postgresql-common ca-certificates build-essential pgxnclient ${{ inputs.packages }}
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -v ${{ inputs.version }} -i -p
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
-          if [ "${{ inputs.start }}" == 'yes' ]; then
+          if [ "${{ inputs.start }}" == 'true' ]; then
             sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }} -- -A trust
           fi
           printf '/usr/lib/postgresql/${{ inputs.version }}/bin\n' >> "$GITHUB_PATH"
@@ -57,7 +57,7 @@ runs:
           brew unlink --quiet "postgresql@${{ inputs.version }}"
           brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
           export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
-          if [ "${{ inputs.start }}" == 'yes' ]; then
+          if [ "${{ inputs.start }}" == 'true' ]; then
             initdb -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
             pg_ctl start
