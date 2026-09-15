@@ -1,4 +1,6 @@
 .vscode
 .gram
 .zed
-widget--1.0.0.sql
+/test/pgxs/widget--1.0.0.sql
+/test/pgxs/regression.diffs
+/test/pgxs/regression.out

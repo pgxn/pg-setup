@@ -1,6 +1,8 @@
 name: 🧪 Test
 on:
   push:
+defaults:
+  run: { shell: bash }
 jobs:
   test:
     strategy:
@@ -40,6 +42,7 @@ jobs:
           - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.4 }
           - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.3 }
           - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.2 }
+
           - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 18  }
           - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 17  }
           - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 16  }
@@ -50,6 +53,25 @@ jobs:
           - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 16  }
           - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 15  }
           - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 14  }
+
+          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 18  }
+          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 17  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 16  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 15  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 14  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 13  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 12  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 11  }
+          # - { img: 🪟, os: Windows,  vm: latest,  arch: amd64,  pg: 10  }
+          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 18  }
+          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 17  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 16  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 15  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 14  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 13  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 12  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 11  }
+          # - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64,  pg: 10  }
     name: ${{ matrix.img }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
     runs-on: ${{ matrix.os }}-${{ matrix.vm }}
     steps:
@@ -78,7 +100,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: regression-diffs-${{ matrix.os }}-${{ matrix.arch }}-pg${{ matrix.pg }}
-          path: test/pgxs/regression.diffs
+          path: |
+            test/pgxs/regression.diffs
+            test/pgxs/results
 
   inputs:
     strategy:
@@ -88,6 +112,7 @@ jobs:
         os:
           - { img: 🍎, name: macOS  }
           - { img: 🐧, name: Ubuntu }
+          - { img: 🪟, name: Windows  }
         opt:
           - { port: 6543, encoding: SQL_ASCII, locale: en_US.UTF-8 }
           - { port: 7743, encoding: EUC_KR,    locale: C,  }
@@ -128,6 +153,7 @@ jobs:
         os:
           - { img: 🍎, name: macOS  }
           - { img: 🐧, name: Ubuntu }
+          - { img: 🪟, name: Windows  }
     name: ${{ matrix.os.img }} ${{ matrix.os.name }} no-start
     runs-on: ${{ matrix.os.name }}-latest
     steps:

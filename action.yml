@@ -65,6 +65,41 @@ runs:
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\n' "$(brew --prefix)" >> "$GITHUB_ENV"
           ;;
 
+        Windows)
+          choco install sudo ${{ inputs.packages }}
+          # Chocolatey downloads the PostgreSQL installer from
+          # get.enterprisedb.com, which intermittently responds with HTTP 403
+          # and aborts the install. Retry a few times to absorb such transient
+          # download failures.
+          for attempt in 1 2 3; do
+            if choco install postgresql${{ inputs.version }} \
+              --ia "--enable-components server,commandlinetools --extract-only 1" \
+              --no-progress; then
+              break
+            fi
+
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Failed to install PostgreSQL after $attempt attempts."
+              exit 1
+            fi
+
+            echo "::warning::choco install failed (attempt $attempt), retrying in 15s..."
+            sleep 15
+          done
+          pip install pgxnclient
+
+          PG_DIR="$PROGRAMFILES/PostgreSQL/${{ inputs.version }}"
+          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
+          if [ "${{ inputs.start }}" == 'true' ]; then
+            "$PG_DIR/bin/initdb.exe" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
+            "$PG_DIR/bin/pg_ctl.exe" start
+          fi
+
+          printf '%s\n' "$PG_DIR/bin" >> $GITHUB_PATH
+          printf 'PGDATA=\nPGBIN=\nPGPASSWORD=\nPGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config.exe\n' "$PG_DIR" >> "$GITHUB_ENV"
+          ;;
+
         *)
           printf '%s not supported\n' "$RUNNER_OS"
           exit 1

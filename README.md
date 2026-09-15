@@ -6,8 +6,13 @@ This action sets up a PostgreSQL server on the GitHub runner VM to enable the
 automated testing of PGXN extensions against multiple versions of PostgreSQL.
 It currently supports:
 
-*   Ubuntu Runners, PostgreSQL 8.2-19
-*   macOS Runners, PostreSQL 14-18
+*   Ubuntu Runners with PGDG-installed PostgreSQL 8.2-19
+*   macOS Runners with Homebrew-installed PostreSQL 14-18
+*   Windows Runners with Chocolatey-installed PostreSQL 10-18[^win-pgxs]
+
+In addition, each provies the [pgxn client] to simplify installing additional
+extension from [PGXN]. The Windows images also adds `sudo` to minimize
+differences in the commands required to install extension on each OS.
 
 Example workflow:
 
@@ -15,22 +20,28 @@ Example workflow:
 name: 🧪 Test
 on:
   push:
+defaults:
+  run: { shell: bash }
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 19  }
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 18  }
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 17  }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 19  }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 18  }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 17  }
-          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 18  }
-          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 17  }
-          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 18  }
-          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 17  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 19 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 18 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 17 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 19 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 18 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 17 }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64, pg: 18 }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64, pg: 17 }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64, pg: 18 }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64, pg: 17 }
+          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64, pg: 18 }
+          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64, pg: 17 }
+          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64, pg: 18 }
+          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64, pg: 17 }
     name: ${{ matrix.img }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
     runs-on: ${{ matrix.os }}-${{ matrix.vm }}
     steps:
@@ -65,6 +76,12 @@ This action takes the following parameters:
 | `encoding`         | string  | ""        | The encoding to use for databases in the cluster     |
 | `locale`           | string  | ""        | The locale to use for databases in the cluster       |
 
+For the `packages` input, use package names specific to the OS packaging system:
+
+*   Linux: [Debian Packages]
+*   macOS: [Homebrew Formulae]
+*   Windows: [Chocolatey Packages]
+
 ## Environment Variables
 
 On completion, this action sets the following environment variables:
@@ -81,9 +98,17 @@ On completion, this action adds the path to the PostgreSQLl executables to the
 `PATH` environment varaible, so they can be called without needing to know the
 full, often version-specific path.
 
+  [^win-pgxs]: Although currently the standard `include $(PGXS)` pattern in
+    `Makefiles` appears to work only on Postgres 17 and later, because
+    `pg_config --pgxs` returns a path with spaces in it on earlier versions.
+
   [⚖️ PostgreSQL]: https://img.shields.io/badge/License-PostgreSQL-blue.svg "⚖️ PostgreSQL License"
   [pg]: https://opensource.org/license/postgresql "⚖️ PostgreSQL License"
   [🧪 Test]: https://github.com/pgxn/pg-setup/actions/workflows/test.yml/badge.svg "🧪 Test Status"
   [ci]: https://github.com/pgxn/pg-setup/actions/workflows/test.yml "🧪 Test Status"
   [🎬 Action]: https://img.shields.io/badge/Marketplace-Action-orange.svg "[🎬 Marketplace Action]"
   [action]: https://github.com/marketplace/actions/pg-setup "[🎬 Marketplace Action]"
+  [Debian Packages]: https://packages.debian.org/index
+  [Homebrew Formulae]: https://formulae.brew.sh
+  [Chocolatey Packages]: https://community.chocolatey.org/packages/
+  [pgxn client]: https://pgxn.github.io/pgxnclient/
