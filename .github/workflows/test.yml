@@ -6,6 +6,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # https://salsa.debian.org/postgresql/apt.postgresql.org/-/raw/master/pgapt.conf
+        # https://raw.githubusercontent.com/mkevenaar/chocolatey-packages/refs/heads/master/automatic/postgresql/postgresql.json
+        # curl https://formulae.brew.sh/api/formula/postgresql@18.json | jq '.versioned_formulae' (iterate versions, query and filter out disabled)
         include:
           - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 19  }
           - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 18  }

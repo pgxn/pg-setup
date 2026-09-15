@@ -62,7 +62,7 @@ runs:
             printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
             pg_ctl start
           fi
-          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\nPGDATA=%s' "$(brew --prefix)" "$PGDDATA" >> "$GITHUB_ENV"
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\n' "$(brew --prefix)" >> "$GITHUB_ENV"
           ;;
 
         *)
