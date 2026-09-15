@@ -6,11 +6,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [[🐧, Ubuntu]] #, [🍎, macOS], [🪟, Windows]]
-        arch: [amd64, arm64]
-        pg: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2]
-    name: ${{ matrix.os[0] }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
-    runs-on: ${{ matrix.os[1] }}-latest
+        include:
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 19  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 18  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 17  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 16  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 15  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 14  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 13  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 12  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 11  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 10  }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 9.6 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 9.5 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 9.4 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 9.3 }
+          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 9.2 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 19  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 18  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 17  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 16  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 15  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 14  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 13  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 12  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 11  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 10  }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.6 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.5 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.4 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.3 }
+          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 9.2 }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 18  }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 17  }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 16  }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 15  }
+          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64,  pg: 14  }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 18  }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 17  }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 16  }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 15  }
+          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64,  pg: 14  }
+    name: ${{ matrix.img }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
+    runs-on: ${{ matrix.os }}-${{ matrix.vm }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
@@ -20,10 +58,6 @@ jobs:
         with:
           version: ${{ matrix.pg }}
           packages: libkrb5-dev libipc-run-perl
-      - if: failure() && steps.pg.outcome == 'failure'
-        run: |
-          systemctl status postgresql@${{ matrix.pg }}-test.service
-          journalctl -xeu postgresql@${{ matrix.pg }}-test.service
       - name: Build
         working-directory: test/pgxs
         run: make -j $(nproc)
@@ -41,5 +75,5 @@ jobs:
         if: failure() && steps.test.outcome == 'failure'
         uses: actions/upload-artifact@v7
         with:
-          name: regression-diffs-${{ matrix.os[1] }}-${{ matrix.os[1] }}-pg${{ matrix.pg }}
+          name: regression-diffs-${{ matrix.os }}-${{ matrix.arch }}-pg${{ matrix.pg }}
           path: test/pgxs/regression.diffs

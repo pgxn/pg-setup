@@ -30,7 +30,7 @@ runs:
         case "$RUNNER_OS" in
         Linux)
           sudo apt-get update
-          sudo apt-get install -y postgresql-common ca-certificates build-essential ${{ inputs.packages }}
+          sudo apt-get install -y postgresql-common ca-certificates build-essential pgxnclient ${{ inputs.packages }}
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -v ${{ inputs.version }} -i -p
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
           if [ "${{ inputs.start }}" == 'yes' ]; then
@@ -38,6 +38,24 @@ runs:
           fi
           printf '/usr/lib/postgresql/${{ inputs.version }}/bin\n' >> "$GITHUB_PATH"
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=/usr/lib/postgresql/${{ inputs.version }}/bin/pg_config' >> "$GITHUB_ENV"
+          ;;
+
+        macOS)
+          export HOMEBREW_GITHUB_ACTIONS=1
+          export HOMEBREW_NO_ENV_HINTS=1
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+          export HOMEBREW_NO_INSTALL_CLEANUP=1
+          export HOMEBREW_NO_INSTALL_UPGRADE=1
+          brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient
+          brew unlink --quiet "postgresql@${{ inputs.version }}"
+          brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
+          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
+          if [ "${{ inputs.start }}" == 'yes' ]; then
+            initdb -U postgres
+            printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
+            pg_ctl start
+          fi
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\nPGDATA=%s' "$(brew --prefix)" "$PGDDATA" >> "$GITHUB_ENV"
           ;;
 
         *)
