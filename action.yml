@@ -12,7 +12,7 @@ inputs:
     default: "19"
   port:
     description: The Postgres server port for Postgres
-    default: "5432"
+    default: "55432"
     required: false
   packages:
     description: List of additional packages to install
@@ -36,5 +36,12 @@ runs:
           if [ "${{ inputs.start }}" == 'yes' ]; then
             sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} -- -A trust
           fi
-          echo /usr/lib/postgresql/${{ inputs.version }}/bin >> "$GITHUB_PATH"
+          printf '/usr/lib/postgresql/${{ inputs.version }}/bin\n' >> "$GITHUB_PATH"
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=/usr/lib/postgresql/${{ inputs.version }}/bin/pg_config' >> "$GITHUB_ENV"
+          ;;
+
+        *)
+          printf '%s not supported\n' "$RUNNER_OS"
+          exit 1
+          ;;
+        esac

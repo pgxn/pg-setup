@@ -1,0 +1,45 @@
+name: 🧪 Test
+on:
+  push:
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [[🐧, Ubuntu]] #, [🍎, macOS], [🪟, Windows]]
+        arch: [amd64, arm64]
+        pg: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9.6, 9.5, 9.4, 9.3, 9.2]
+    name: ${{ matrix.os[0] }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
+    runs-on: ${{ matrix.os[1] }}-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+      - name: Start Postgres ${{ matrix.pg }}
+        id: pg
+        uses: ./
+        with:
+          version: ${{ matrix.pg }}
+          packages: libkrb5-dev libipc-run-perl
+      - if: failure() && steps.pg.outcome == 'failure'
+        run: |
+          systemctl status postgresql@${{ matrix.pg }}-test.service
+          journalctl -xeu postgresql@${{ matrix.pg }}-test.service
+      - name: Build
+        working-directory: test/pgxs
+        run: make -j $(nproc)
+      - name: Install
+        working-directory: test/pgxs
+        run: sudo make install
+      - name: Test
+        id: test
+        working-directory: test/pgxs
+        run: make installcheck
+      - name: Show Diffs
+        if: failure() && steps.test.outcome == 'failure'
+        run: find . -name regression.diffs -exec cat {} +
+      - name: Upload Diffs
+        if: failure() && steps.test.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: regression-diffs-${{ matrix.os[1] }}-${{ matrix.os[1] }}-pg${{ matrix.pg }}
+          path: test/pgxs/regression.diffs
