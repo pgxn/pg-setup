@@ -26,5 +26,5 @@ The theme of this release is *Simplify, simplify.*
 
 *   Wrote a [README]
 
-  [v0.1.0]: https://github.com/pgxn/pg-setup/compare/e284f8d...v0.1.0
+  [v0.1.0]: https://github.com/pgxn/postgres-action/compare/e284f8d...v0.1.0
   [README]: README.md

@@ -48,7 +48,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v7
       - name: Start Postgres ${{ matrix.pg }}
-        uses: pgxn/pg-setup@v0
+        uses: pgxn/postgres-action@v0
         with: { version: "${{ matrix.pg }}" }
       - name: Build
         run:  make
@@ -110,10 +110,10 @@ full, often version-specific path.
 
   [⚖️ PostgreSQL]: https://img.shields.io/badge/License-PostgreSQL-blue.svg "⚖️ PostgreSQL License"
   [pg]: https://opensource.org/license/postgresql "⚖️ PostgreSQL License"
-  [🧪 Test]: https://github.com/pgxn/pg-setup/actions/workflows/test.yml/badge.svg "🧪 Test Status"
-  [ci]: https://github.com/pgxn/pg-setup/actions/workflows/test.yml "🧪 Test Status"
+  [🧪 Test]: https://github.com/pgxn/postgres-action/actions/workflows/test.yml/badge.svg "🧪 Test Status"
+  [ci]: https://github.com/pgxn/postgres-action/actions/workflows/test.yml "🧪 Test Status"
   [🎬 Action]: https://img.shields.io/badge/Marketplace-Action-orange.svg "[🎬 Marketplace Action]"
-  [action]: https://github.com/marketplace/actions/pg-setup "[🎬 Marketplace Action]"
+  [action]: https://github.com/marketplace/actions/postgres-action "[🎬 Marketplace Action]"
   [Debian Packages]: https://packages.debian.org/index
   [Homebrew Formulae]: https://formulae.brew.sh
   [Chocolatey Packages]: https://community.chocolatey.org/packages/
