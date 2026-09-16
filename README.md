@@ -75,7 +75,10 @@ This action takes the following parameters:
 | `encoding`         | string  | ""        | The encoding to use for databases in the cluster     |
 | `locale`           | string  | ""        | The locale to use for databases in the cluster       |
 
-For the `packages` input, use package names specific to the OS packaging system:
+The `locale` and `encoding` inputs have no effect if `start` is false.
+
+For the `packages` input, use package names specific to the OS packaging
+system:
 
 *   Linux: [Debian Packages]
 *   macOS: [Homebrew Formulae]
@@ -113,7 +116,7 @@ full, often version-specific path.
   [🧪 Test]: https://github.com/pgxn/postgres-action/actions/workflows/test.yml/badge.svg "🧪 Test Status"
   [ci]: https://github.com/pgxn/postgres-action/actions/workflows/test.yml "🧪 Test Status"
   [🎬 Action]: https://img.shields.io/badge/Marketplace-Action-orange.svg "[🎬 Marketplace Action]"
-  [action]: https://github.com/marketplace/actions/postgres-action "[🎬 Marketplace Action]"
+  [action]: https://github.com/marketplace/actions/pgxn-postgres-action "[🎬 Marketplace Action]"
   [Debian Packages]: https://packages.debian.org/index
   [Homebrew Formulae]: https://formulae.brew.sh
   [Chocolatey Packages]: https://community.chocolatey.org/packages/

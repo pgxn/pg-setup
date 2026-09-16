@@ -1,9 +1,9 @@
-name: Start Postgres
-description: Install, configure, and start a Postgres cluster
+name: PGXN Postgres Action
+description: Install, configure, and start a PostgreSQL cluster for testing extensions.
 author: David E. Wheeler
 branding:
-icon: database
-color: orange
+  icon: database
+  color: orange
 
 inputs:
   version:
