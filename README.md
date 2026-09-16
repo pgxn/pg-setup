@@ -97,6 +97,13 @@ On completion, this action adds the path to the PostgreSQLl executables to the
 `PATH` environment varaible, so they can be called without needing to know the
 full, often version-specific path.
 
+## Prior Art/Inspirations
+
+*   [pgxn-tools]: Old PGXN Linux/amd64-only OCI image for testing extensions
+*   [petere/pguint]: Commit converting to GitHub actions using `apt.postgresql.org`
+*   [ikalnytskyi/action-setup-postgres]: Setup PostgreSQL for Linux, macOS and
+    Windows runner machines
+
   [^win-pgxs]: Although currently the standard `include $(PGXS)` pattern in
     `Makefiles` appears to work only on Postgres 17 and later, because
     `pg_config --pgxs` returns a path with spaces in it on earlier versions.
@@ -111,3 +118,8 @@ full, often version-specific path.
   [Homebrew Formulae]: https://formulae.brew.sh
   [Chocolatey Packages]: https://community.chocolatey.org/packages/
   [pgxn client]: https://pgxn.github.io/pgxnclient/
+  [pgxn-tools]: https://github.com/pgxn/docker-pgxn-tools/ "Test image for PostgreSQL & PGXN extensions"
+  [petere/pguint]: https://github.com/petere/pguint/commit/bcc3335
+    "petere/pguint@bcc3335 Convert CI from Cirrus to GitHub Actions"
+  [ikalnytskyi/action-setup-postgres]: https://github.com/ikalnytskyi/action-setup-postgres/
+    "Setup a PostgreSQL for Linux, macOS and Windows runner machines"
