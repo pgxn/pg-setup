@@ -28,39 +28,38 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 19 }
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 18 }
-          - { img: 🐧, os: Ubuntu, vm: latest,    arch: amd64, pg: 17 }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 19 }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 18 }
-          - { img: 🐧, os: Ubuntu, vm: 26.04-arm, arch: arm64, pg: 17 }
-          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64, pg: 18 }
-          - { img: 🍎, os: macOS,  vm: latest,    arch: arm64, pg: 17 }
-          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64, pg: 18 }
-          - { img: 🍎, os: macOS,  vm: 26-intel,  arch: amd64, pg: 17 }
-          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64, pg: 18 }
-          - { img: 🪟, os: Windows,  vm: latest,  arch: amd64, pg: 17 }
-          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64, pg: 18 }
-          - { img: 🪟, os: Windows,  vm: 11-arm,  arch: arm64, pg: 17 }
+          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 19 }
+          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 18 }
+          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 17 }
+          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 19 }
+          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 18 }
+          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 17 }
+          - { img: 🍎, os: macOS,   vm: latest,    arch: arm64, pg: 18 }
+          - { img: 🍎, os: macOS,   vm: latest,    arch: arm64, pg: 17 }
+          - { img: 🍎, os: macOS,   vm: 26-intel,  arch: amd64, pg: 18 }
+          - { img: 🍎, os: macOS,   vm: 26-intel,  arch: amd64, pg: 17 }
+          - { img: 🪟, os: Windows, vm: latest,    arch: amd64, pg: 18 }
+          - { img: 🪟, os: Windows, vm: latest,    arch: amd64, pg: 17 }
+          - { img: 🪟, os: Windows, vm: 11-arm,    arch: arm64, pg: 18 }
+          - { img: 🪟, os: Windows, vm: 11-arm,    arch: arm64, pg: 17 }
     name: ${{ matrix.img }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
     runs-on: ${{ matrix.os }}-${{ matrix.vm }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
       - name: Start Postgres ${{ matrix.pg }}
-        id: pg
         uses: pgxn/pg-setup@v0
         with: { version: "${{ matrix.pg }}" }
       - name: Build
-        run: make
+        run:  make
       - name: Install
-        run: sudo make
+        run:  sudo make
       - name: Test
-        id: test
-        run: make installcheck
+        id:   test
+        run:  make installcheck
       - name: Show Diffs
-        if: failure() && steps.test.outcome == 'failure'
-        run: find . -name regression.diffs -exec cat {} +
+        if:   failure() && steps.test.outcome == 'failure'
+        run:  find . -name regression.diffs -exec cat {} +
 ```
 
 ## Input Parameters
